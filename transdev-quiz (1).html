@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Transdev RSF Quiz 🚌</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0b1220;--navy2:#111c30;--navy3:#1a2840;
+  --blue:#1a6bff;--cyan:#00d4ff;--gold:#ffc93c;
+  --green:#22e07a;--red:#ff4d6d;--white:#f0f6ff;
+  --muted:#6a84a8;--card:#0f1a2e;--border:#1e3050;
+}
+html,body{min-height:100dvh;background:var(--navy);font-family:'Syne',sans-serif;color:var(--white);overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 80% 50% at 20% -10%,#1a6bff18 0%,transparent 60%),
+             radial-gradient(ellipse 60% 40% at 90% 110%,#00d4ff12 0%,transparent 55%)}
+.road{position:fixed;bottom:0;left:0;right:0;height:56px;z-index:0;opacity:.12;overflow:hidden}
+.road::before{content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(90deg,transparent 0%,transparent 45%,#fff 45%,#fff 55%,transparent 55%,transparent 100%);
+  background-size:120px 100%;animation:road .9s linear infinite}
+@keyframes road{to{background-position-x:120px}}
+#app{position:relative;z-index:1;max-width:540px;margin:0 auto;padding:0 16px 80px;display:flex;flex-direction:column;align-items:center;gap:14px;min-height:100dvh}
+/* TOP */
+.top-bar{width:100%;display:flex;align-items:center;justify-content:space-between;padding:18px 0 4px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:38px;height:38px;border-radius:11px;flex-shrink:0;background:linear-gradient(135deg,var(--blue),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 18px #1a6bff50}
+.logo-name{font-size:17px;font-weight:800;letter-spacing:.5px}
+.logo-sub{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;margin-top:1px}
+.tabs{display:flex;gap:4px;background:var(--navy2);border-radius:10px;padding:4px;border:1px solid var(--border)}
+.tab{padding:6px 12px;border-radius:7px;border:none;cursor:pointer;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--muted);background:transparent;transition:all .2s}
+.tab.on{background:var(--blue);color:#fff;box-shadow:0 0 10px #1a6bff60}
+/* SCREENS */
+.scr{width:100%;display:none;flex-direction:column;align-items:center;gap:14px;padding-top:4px}
+.scr.on{display:flex}
+/* CARDS */
+.card{width:100%;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
+.lbl{display:block;font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:7px}
+.inp{width:100%;background:var(--navy2);border:1.5px solid var(--border);border-radius:10px;padding:13px 15px;font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--white);outline:none;transition:border-color .2s}
+.inp:focus{border-color:var(--blue)}
+.inp::placeholder{color:var(--muted);font-weight:400}
+.diff-row{display:flex;gap:7px;width:100%;margin-top:4px}
+.diff{flex:1;padding:9px 4px;border-radius:10px;border:1.5px solid var(--border);background:var(--navy2);font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .2s;text-align:center}
+.diff.on{border-color:var(--gold);color:var(--gold);background:#ffc93c12}
+/* BUTTONS */
+.btn{width:100%;padding:15px;border:none;border-radius:12px;cursor:pointer;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;letter-spacing:.5px;transition:all .2s}
+.btn-main{background:linear-gradient(135deg,var(--blue),#1058d8);color:#fff;box-shadow:0 4px 22px #1a6bff40}
+.btn-main:active{transform:scale(.97)}
+.btn-main:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-ghost{background:transparent;border:1.5px solid var(--border);color:var(--muted);margin-top:6px}
+.btn-ghost:active{transform:scale(.97)}
+.btn-next{width:100%;padding:13px;border:1.5px solid var(--border);border-radius:12px;background:var(--navy2);font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--cyan);cursor:pointer;letter-spacing:1px;transition:all .2s}
+.btn-next:active{transform:scale(.97)}
+/* HERO */
+.hero{text-align:center;margin-top:4px;width:100%}
+.hero h1{font-size:clamp(22px,6vw,36px);font-weight:800;line-height:1.15;background:linear-gradient(135deg,var(--white) 30%,var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:6px;letter-spacing:1px}
+/* PROGRESS */
+.prog-row{width:100%;display:flex;align-items:center;justify-content:space-between}
+.prog-lbl{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)}
+.prog-pts{font-family:'DM Mono',monospace;font-size:11px;color:var(--cyan)}
+.prog-bar{width:100%;height:4px;background:var(--navy3);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:width .4s ease;box-shadow:0 0 8px var(--cyan)}
+/* TIMER */
+.timer-wrap{display:flex;align-items:center;gap:12px;width:100%}
+.t-ring{position:relative;width:50px;height:50px;flex-shrink:0}
+.t-ring svg{transform:rotate(-90deg)}
+.t-ring circle{fill:none;stroke-width:3}
+.t-bg{stroke:var(--navy3)}
+.t-fill{stroke-linecap:round;stroke-dasharray:131.9;transition:stroke-dashoffset 1s linear,stroke .3s}
+.t-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:14px}
+/* QUESTION */
+.q-card{width:100%;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px 17px;position:relative;overflow:hidden}
+.q-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--cyan))}
+.q-cat{font-family:'DM Mono',monospace;font-size:9px;color:var(--blue);letter-spacing:2px;margin-bottom:10px;text-transform:uppercase}
+.q-text{font-size:clamp(13px,3.8vw,15px);font-weight:700;line-height:1.5;color:var(--white)}
+/* ANSWERS */
+.ans-grid{width:100%;display:flex;flex-direction:column;gap:9px}
+.ans{width:100%;padding:13px 14px;background:var(--card);border:1.5px solid var(--border);border-radius:12px;text-align:left;font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:11px}
+.ans:active:not([disabled]){transform:scale(.98)}
+.ans:not([disabled]):hover{border-color:var(--blue);background:#1a6bff10}
+.ans[disabled]{cursor:default}
+.ans-l{width:26px;height:26px;border-radius:7px;background:var(--navy3);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);flex-shrink:0;transition:all .15s}
+.ans.ok{border-color:var(--green);background:#22e07a18}
+.ans.ok .ans-l{background:var(--green);color:var(--navy)}
+.ans.ko{border-color:var(--red);background:#ff4d6d18}
+.ans.ko .ans-l{background:var(--red);color:#fff}
+.ans.reveal{border-color:var(--green);opacity:.55}
+/* EXPL */
+.expl{width:100%;background:var(--navy2);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:12px;padding:13px 15px;font-size:12px;color:var(--muted);line-height:1.65}
+.expl strong{color:var(--white);font-size:13px}
+/* RESULT */
+.res-hero{text-align:center;padding:8px 0;width:100%}
+.res-emoji{font-size:54px;line-height:1}
+.res-title{font-size:24px;font-weight:800;margin-top:8px}
+.res-sub{color:var(--muted);font-size:11px;margin-top:4px;font-family:'DM Mono',monospace}
+.score-display{font-family:'DM Mono',monospace;font-size:48px;font-weight:800;color:var(--gold);text-align:center;text-shadow:0 0 30px #ffc93c60}
+.score-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-align:center;margin-top:-6px;letter-spacing:2px}
+.stats{display:flex;gap:8px;width:100%}
+.stat{flex:1;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px 8px;text-align:center}
+.stat b{display:block;font-size:20px;font-weight:800}
+.stat small{font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px}
+/* LEADERBOARD */
+.lb-header{width:100%;display:flex;align-items:center;justify-content:space-between;margin-top:4px}
+.lb-header h2{font-size:18px;font-weight:800}
+.lb-refresh{background:var(--navy2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:10px;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;transition:all .2s}
+.lb-refresh:active{transform:scale(.95)}
+.podium{display:flex;align-items:flex-end;justify-content:center;gap:7px;width:100%}
+.pod{flex:1;display:flex;flex-direction:column;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 6px}
+.pod.p1{border-color:var(--gold);box-shadow:0 0 18px #ffc93c22}
+.pod.p2{border-color:#c0c0c035}
+.pod.p3{border-color:#cd7f3235}
+.pod-crown{font-size:18px;margin-bottom:3px}
+.pod-av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;margin-bottom:5px;background:var(--navy3)}
+.p1 .pod-av{background:linear-gradient(135deg,var(--gold),#e6a800);color:var(--navy)}
+.p2 .pod-av{background:linear-gradient(135deg,#b0b0b0,#808080);color:#fff}
+.p3 .pod-av{background:linear-gradient(135deg,#cd7f32,#a05a20);color:#fff}
+.pod-name{font-size:10px;font-weight:700;text-align:center;word-break:break-all}
+.pod-pts{font-family:'DM Mono',monospace;font-size:12px;color:var(--cyan);margin-top:2px}
+.pod-meta{font-size:8px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px}
+.hr{width:100%;height:1px;background:var(--border)}
+.lb-list{width:100%;display:flex;flex-direction:column;gap:7px}
+.lb-row{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 13px}
+.lb-row.me{border-color:var(--blue);background:#1a6bff08}
+.lb-rank{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);width:20px;text-align:center;flex-shrink:0}
+.lb-av{width:33px;height:33px;border-radius:50%;background:var(--navy3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0}
+.lb-info{flex:1;min-width:0}
+.lb-name{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-sub{font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:1px}
+.lb-pts{font-family:'DM Mono',monospace;font-size:13px;color:var(--cyan);flex-shrink:0}
+.empty{text-align:center;color:var(--muted);font-size:11px;padding:28px 0;font-family:'DM Mono',monospace;line-height:1.8;width:100%}
+/* TOAST */
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--navy2);border:1px solid var(--border);border-radius:10px;padding:10px 20px;font-size:12px;color:var(--white);z-index:99;transition:transform .3s;white-space:nowrap;box-shadow:0 4px 20px #00000060;pointer-events:none}
+#toast.show{transform:translateX(-50%) translateY(0)}
+.spinner{width:18px;height:18px;border:2px solid #ffffff30;border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top-bar">
+    <div class="logo">
+      <div class="logo-icon">🚌</div>
+      <div>
+        <div class="logo-name">TRANSDEV</div>
+        <div class="logo-sub">RSF QUIZ CHALLENGE</div>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab on" onclick="goTab('quiz')">QUIZ</button>
+      <button class="tab" onclick="goTab('lb')">TOP 🏆</button>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="scr on" id="s-home">
+    <div class="hero">
+      <h1>Quiz RSF &amp; Transport</h1>
+      <p>🚌 TRANSDEV EXPRESS ROISSY — ÉQUIPE INTERNE</p>
+    </div>
+    <div class="card">
+      <span class="lbl">TON PRÉNOM / PSEUDO</span>
+      <input class="inp" id="nameInput" type="text" maxlength="20"
+        placeholder="Ex: Ouadia, Johan, Farid…"
+        autocomplete="off" autocorrect="off" spellcheck="false">
+      <span class="lbl" style="margin-top:12px">DIFFICULTÉ</span>
+      <div class="diff-row">
+        <button class="diff on" data-d="1" onclick="pickDiff(this)">🟢 Débutant</button>
+        <button class="diff" data-d="2" onclick="pickDiff(this)">🟡 Confirmé</button>
+        <button class="diff" data-d="3" onclick="pickDiff(this)">🔴 Expert</button>
+      </div>
+    </div>
+    <button class="btn btn-main" id="startBtn" onclick="startQuiz()">🚦 DÉMARRER LE QUIZ</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="scr" id="s-quiz">
+    <div class="prog-row">
+      <div class="prog-lbl" id="qNum">Q 1 / 10</div>
+      <div class="prog-pts" id="qPts">0 pts</div>
+    </div>
+    <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+    <div class="timer-wrap">
+      <div class="t-ring">
+        <svg width="50" height="50" viewBox="0 0 50 50">
+          <circle class="t-bg" cx="25" cy="25" r="21"/>
+          <circle class="t-fill" id="tFill" cx="25" cy="25" r="21" stroke-dashoffset="0" stroke="var(--cyan)"/>
+        </svg>
+        <div class="t-num" id="tNum" style="color:var(--cyan)">20</div>
+      </div>
+      <div style="flex:1">
+        <div class="q-cat" id="qCat">CATÉGORIE</div>
+        <div class="q-text" id="qText">…</div>
+      </div>
+    </div>
+    <div class="ans-grid" id="ansGrid"></div>
+    <div class="expl" id="expl" style="display:none"></div>
+    <button class="btn-next" id="btnNext" style="display:none" onclick="nextQ()">SUIVANT →</button>
+  </div>
+
+  <!-- RESULT -->
+  <div class="scr" id="s-result">
+    <div class="res-hero">
+      <div class="res-emoji" id="rEmoji">🏆</div>
+      <div class="res-title" id="rTitle">Bravo !</div>
+      <div class="res-sub" id="rSub"></div>
+    </div>
+    <div class="score-display" id="rScore">0</div>
+    <div class="score-label">POINTS</div>
+    <div class="stats">
+      <div class="stat"><b id="rOk" style="color:var(--green)">0</b><small>BONNES</small></div>
+      <div class="stat"><b id="rKo" style="color:var(--red)">0</b><small>ERREURS</small></div>
+      <div class="stat"><b id="rBonus" style="color:var(--gold)">+0</b><small>BONUS TEMPS</small></div>
+    </div>
+    <button class="btn btn-main" onclick="goTab('lb')">🏆 VOIR LE CLASSEMENT</button>
+    <button class="btn btn-ghost" onclick="resetHome()">↩ REJOUER</button>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <div class="scr" id="s-lb">
+    <div class="lb-header">
+      <h2>🏆 Classement</h2>
+      <button class="lb-refresh" onclick="loadLb()">↻ Actualiser</button>
+    </div>
+    <div class="podium" id="podium"></div>
+    <div class="hr"></div>
+    <div class="lb-list" id="lbList"><div class="empty">Chargement…</div></div>
+  </div>
+</div>
+
+<div class="road"></div>
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+// SUPABASE CONFIG
+// ══════════════════════════════════════════
+const SB_URL = 'https://qljmqcvbhaybqtnqivna.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFsam1xY3ZiaGF5YnF0bnFpdm5hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjI4MjQsImV4cCI6MjA5MTkzODgyNH0.TWnKmIgKlyoQDnJSbWj8qyIZp72KEd75LptjzsIhiqc';
+
+async function sbFetch(path, opts = {}) {
+  const res = await fetch(SB_URL + path, {
+    ...opts,
+    headers: {
+      'apikey': SB_KEY,
+      'Authorization': 'Bearer ' + SB_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': opts.prefer || '',
+      ...(opts.headers || {})
+    }
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(err);
+  }
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+
+async function insertScore(name, score, ok, diff) {
+  await sbFetch('/rest/v1/scores', {
+    method: 'POST',
+    prefer: 'return=minimal',
+    body: JSON.stringify({
+      name,
+      score,
+      ok,
+      diff,
+      date: new Date().toLocaleDateString('fr-FR')
+    })
+  });
+}
+
+async function fetchScores() {
+  // Get all scores, ordered by score desc
+  return await sbFetch('/rest/v1/scores?select=name,score,ok,diff,date&order=score.desc&limit=200');
+}
+
+// ══════════════════════════════════════════
+// QUESTION BANK
+// ══════════════════════════════════════════
+const BANK = [
+  {cat:"RSF - Temps de conduite",lvl:1,
+   q:"Quelle est la durée maximale de conduite continue autorisée avant de prendre une pause ?",
+   a:["3 heures","4 heures 30","2 heures","4 heures"],ok:1,
+   expl:"Après 4h30 de conduite continue, une pause d'au moins 45 min est obligatoire (règlement CE 561/2006). Elle peut se fractionner en 15 min + 30 min dans cet ordre."},
+
+  {cat:"RSF - Temps de conduite",lvl:1,
+   q:"Quelle est la durée maximale de conduite journalière normale d'un conducteur de bus ?",
+   a:["8 heures","9 heures","10 heures","12 heures"],ok:1,
+   expl:"La conduite journalière est limitée à 9 heures normalement. Elle peut être portée à 10 heures maximum 2 fois par semaine calendaire."},
+
+  {cat:"RSF - Repos",lvl:1,
+   q:"Quelle est la durée minimale du repos journalier normal pour un conducteur ?",
+   a:["8 heures","10 heures","11 heures","12 heures"],ok:2,
+   expl:"Le repos journalier normal est de 11 heures consécutives. Il peut être réduit à 9 heures (repos réduit) au maximum 3 fois entre deux repos hebdomadaires."},
+
+  {cat:"RSF - Pause",lvl:1,
+   q:"Comment peut-on fractionner la pause obligatoire de 45 min après 4h30 de conduite ?",
+   a:["2 pauses de 22 min","15 min d'abord, puis 30 min","30 min d'abord, puis 15 min","3 pauses de 15 min"],ok:1,
+   expl:"La pause peut être divisée en deux : une première de 15 min minimum, suivie d'une de 30 min minimum, dans cet ordre uniquement."},
+
+  {cat:"Sécurité routière",lvl:1,
+   q:"Quelle est la vitesse maximale autorisée pour un autobus en agglomération ?",
+   a:["30 km/h","50 km/h","70 km/h","80 km/h"],ok:1,
+   expl:"En agglomération, la limite est de 50 km/h pour tous les véhicules, y compris les autobus et autocars."},
+
+  {cat:"Sécurité voyageurs",lvl:1,
+   q:"Que doit faire en priorité un conducteur en cas d'incendie à bord du bus ?",
+   a:["Appeler le garage","Éteindre le feu avec l'extincteur","Évacuer immédiatement tous les voyageurs","Continuer jusqu'au prochain arrêt"],ok:2,
+   expl:"La priorité absolue est l'évacuation immédiate des voyageurs, puis alerter les secours (18 ou 112)."},
+
+  {cat:"Réseau IDF",lvl:1,
+   q:"Quelle est la particularité des lignes 350 et 351 opérées par Transdev Express Roissy ?",
+   a:["Lignes de nuit uniquement","Elles relient l'aéroport CDG au centre de Paris","Lignes régionales hors IDF","Réservées aux salariés de CDG"],ok:1,
+   expl:"Les lignes 350 (CDG ↔ Gare de l'Est) et 351 (CDG ↔ Nation) relient l'aéroport CDG au cœur de Paris, opérées par Transdev pour IDF Mobilités."},
+
+  {cat:"Technique bus",lvl:1,
+   q:"Un voyant rouge de pression d'huile s'allume en roulant. Que faire ?",
+   a:["Continuer jusqu'au prochain arrêt technique","Arrêter immédiatement le véhicule en sécurité","Rajouter de l'huile au prochain terminus","Ignorer, c'est souvent un faux contact"],ok:1,
+   expl:"Un voyant rouge de pression d'huile impose l'arrêt immédiat et sécurisé. Continuer risque une casse moteur irréparable."},
+
+  {cat:"RSF - Repos hebdomadaire",lvl:2,
+   q:"Quelle est la durée minimale du repos hebdomadaire normal selon le règlement 561/2006 ?",
+   a:["24 heures","35 heures","45 heures","48 heures"],ok:2,
+   expl:"Le repos hebdomadaire normal est de 45 heures consécutives. Il peut être réduit à 24 heures (repos réduit), avec compensation dans les 3 semaines suivantes."},
+
+  {cat:"RSF - Conduite hebdo",lvl:2,
+   q:"Quelle est la durée maximale de conduite sur deux semaines consécutives ?",
+   a:["80 heures","90 heures","100 heures","112 heures"],ok:1,
+   expl:"Sur deux semaines consécutives, la limite de conduite est de 90 heures, avec un maximum de 56 heures par semaine individuelle."},
+
+  {cat:"RSF - Tachygraphe",lvl:2,
+   q:"Combien de jours de relevés tachygraphiques le conducteur doit-il présenter lors d'un contrôle ?",
+   a:["7 jours","21 jours","28 jours","56 jours"],ok:2,
+   expl:"Le conducteur doit présenter les enregistrements des 28 jours précédents (+ le jour en cours). Le non-respect est une infraction grave."},
+
+  {cat:"RSF - Carte conducteur",lvl:2,
+   q:"Quelle est la durée de validité d'une carte conducteur de tachygraphe numérique ?",
+   a:["2 ans","3 ans","5 ans","10 ans"],ok:2,
+   expl:"La carte conducteur est valable 5 ans. Elle doit être renouvelée avant expiration auprès de l'ANTS. Sans carte valide, la conduite professionnelle est interdite."},
+
+  {cat:"RSF - Amplitude",lvl:2,
+   q:"Quelle est l'amplitude journalière maximale pour un conducteur de transport en commun urbain ?",
+   a:["10 heures","12 heures","13 heures","14 heures"],ok:2,
+   expl:"L'amplitude journalière est limitée à 13 heures selon les accords de branche transport urbain en France."},
+
+  {cat:"Réglementation",lvl:2,
+   q:"Quel organisme est l'autorité organisatrice des transports en Île-de-France ?",
+   a:["La RATP","La SNCF","Île-de-France Mobilités (IDFM)","Le Conseil Régional directement"],ok:2,
+   expl:"Île-de-France Mobilités (ex-STIF) finance, organise et coordonne tous les transports en commun franciliens, et délègue l'exploitation à des opérateurs comme Transdev."},
+
+  {cat:"Sécurité routière",lvl:2,
+   q:"Quelle est la vitesse maximale d'un autocar sur autoroute ?",
+   a:["90 km/h","100 km/h","110 km/h","130 km/h"],ok:2,
+   expl:"Les autocars (transport en commun >9 places) sont limités à 110 km/h sur autoroute, et à 100 km/h sur routes à 2x2 voies séparées."},
+
+  {cat:"Sécurité voyageurs",lvl:2,
+   q:"Combien d'extincteurs sont obligatoires dans un autocar de transport de voyageurs ?",
+   a:["1 extincteur de 2 kg","1 extincteur de 6 kg","2 : un de 2 kg (cabine) + un de 6 kg (soute)","3 extincteurs répartis dans le véhicule"],ok:2,
+   expl:"Deux extincteurs obligatoires : un de 2 kg à portée immédiate du conducteur, et un de 6 kg dans le compartiment à bagages (soute)."},
+
+  {cat:"Relations voyageurs",lvl:2,
+   q:"Un incident violent éclate dans le bus. Quelle est la bonne séquence d'actions ?",
+   a:["Intervenir physiquement pour séparer","Arrêter le bus en sécurité, alarme, PCC, secours (17)","Continuer jusqu'au terminus","Ouvrir toutes les portes et évacuer seul"],ok:1,
+   expl:"Face à la violence : 1) arrêt sécurisé 2) alarme 3) contact PCC 4) appel au 17. Le conducteur ne doit jamais intervenir physiquement."},
+
+  {cat:"RSF - Règlement 561/2006",lvl:3,
+   q:"Dans quel cas un conducteur peut-il porter sa conduite journalière à 10 heures ?",
+   a:["Jamais, 9h est le maximum absolu","En cas de force majeure uniquement","Maximum 2 fois par semaine calendaire","Avec accord écrit de l'employeur uniquement"],ok:2,
+   expl:"La conduite journalière peut être portée à 10 heures au maximum 2 fois par semaine calendaire, sans condition préalable supplémentaire."},
+
+  {cat:"RSF - Compensation",lvl:3,
+   q:"Si un conducteur prend un repos hebdomadaire réduit (24h), dans quel délai doit-il compenser ?",
+   a:["Dans les 24 heures","Avant la fin de la 3e semaine suivante","Avant la fin du mois en cours","À la convenance de l'employeur"],ok:1,
+   expl:"Toute réduction du repos hebdomadaire doit être compensée en une seule période avant la fin de la 3e semaine suivant la semaine de réduction."},
+
+  {cat:"RSF - Conduite hebdo",lvl:3,
+   q:"Quelle est la durée maximale de conduite hebdomadaire selon le règlement 561/2006 ?",
+   a:["48 heures","54 heures","56 heures","60 heures"],ok:2,
+   expl:"La durée maximale de conduite hebdomadaire est de 56 heures. Combinée avec la limite bihebdomadaire de 90 heures, cela encadre strictement les horaires."},
+
+  {cat:"Réglementation",lvl:3,
+   q:"Que doit faire un conducteur si son tachygraphe numérique tombe en panne en cours de route ?",
+   a:["Arrêter le véhicule jusqu'à réparation","Continuer et signaler à son retour","Remplir manuellement une feuille manuscrite et la faire authentifier à l'arrivée","Appeler le constructeur pour un reset"],ok:2,
+   expl:"En cas de panne, le conducteur doit noter manuellement ses activités sur papier. Le véhicule doit être réparé dans les 7 jours ouvrables."},
+
+  {cat:"RSF - Infractions",lvl:3,
+   q:"Quel est le montant de l'amende pour un dépassement du temps de conduite journalier de plus d'une heure ?",
+   a:["135 €","375 €","750 €","1 500 €"],ok:1,
+   expl:"Ce dépassement est une contravention de 4e classe, sanctionnée de 375 € (majorée à 750 €). Des infractions graves peuvent entraîner l'immobilisation du véhicule."},
+];
+
+const TOTAL = 10;
+const DIFF_LABELS = ['','Débutant','Confirmé','Expert'];
+const DIFF_SHORT  = ['','Déb.','Conf.','Exp.'];
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let player='', diff=1, pool=[], cur=0, score=0, okCount=0, koCount=0, bonusTotal=0;
+let shuffledIdxs=[0,1,2,3], newOkPos=0;
+let answered=false, tVal=20, tInt=null;
+
+// ══════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function show(id){
+  document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+}
+
+function goTab(t){
+  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('on',(i===0&&t==='quiz')||(i===1&&t==='lb')));
+  if(t==='lb'){
+    const active=['s-home','s-quiz','s-result'].find(id=>document.getElementById(id).classList.contains('on'))||'s-home';
+    show('s-lb'); loadLb(); return;
+  }
+  const active=['s-home','s-quiz','s-result'].find(id=>document.getElementById(id).classList.contains('on'));
+  show(active||'s-home');
+}
+
+function resetHome(){
+  show('s-home');
+  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('on',i===0));
+}
+
+function pickDiff(btn){
+  document.querySelectorAll('.diff').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); diff=+btn.dataset.d;
+}
+
+let toastT;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),3200);
+}
+
+// ══════════════════════════════════════════
+// TIMER
+// ══════════════════════════════════════════
+function stopTimer(){clearInterval(tInt);tInt=null}
+
+function updateTimerUI(){
+  const col=tVal>10?'var(--cyan)':tVal>5?'var(--gold)':'var(--red)';
+  const off=131.9*(1-tVal/20);
+  document.getElementById('tFill').style.strokeDashoffset=off;
+  document.getElementById('tFill').style.stroke=col;
+  document.getElementById('tNum').textContent=tVal;
+  document.getElementById('tNum').style.color=col;
+}
+
+function startTimer(){
+  stopTimer(); tVal=20; updateTimerUI();
+  tInt=setInterval(()=>{
+    tVal--;updateTimerUI();
+    if(tVal<=0){stopTimer();handleTimeUp();}
+  },1000);
+}
+
+function handleTimeUp(){
+  if(answered)return;
+  answered=true; koCount++;
+  document.querySelectorAll('.ans').forEach(b=>b.disabled=true);
+  showExpl(false, true);
+}
+
+// ══════════════════════════════════════════
+// START QUIZ
+// ══════════════════════════════════════════
+function startQuiz(){
+  player=document.getElementById('nameInput').value.trim();
+  if(!player){toast('✏️ Entre ton prénom pour jouer !');return;}
+  let filtered=diff===1?BANK.filter(q=>q.lvl===1):diff===2?BANK.filter(q=>q.lvl<=2):BANK;
+  pool=shuffle(filtered).slice(0,TOTAL);
+  if(pool.length<TOTAL){pool=[...pool,...shuffle(BANK.filter(q=>!pool.includes(q)))].slice(0,TOTAL)}
+  cur=0;score=0;okCount=0;koCount=0;bonusTotal=0;
+  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('on',i===0));
+  show('s-quiz');
+  renderQ();
+}
+
+// ══════════════════════════════════════════
+// RENDER QUESTION
+// ══════════════════════════════════════════
+function renderQ(){
+  answered=false;
+  const q=pool[cur];
+  shuffledIdxs=shuffle([0,1,2,3]);
+  newOkPos=shuffledIdxs.indexOf(q.ok);
+
+  document.getElementById('qNum').textContent=`Q ${cur+1} / ${TOTAL}`;
+  document.getElementById('qPts').textContent=`${score} pts`;
+  document.getElementById('progFill').style.width=`${cur/TOTAL*100}%`;
+  document.getElementById('qCat').textContent=q.cat.toUpperCase();
+  document.getElementById('qText').textContent=q.q;
+  document.getElementById('expl').style.display='none';
+  document.getElementById('btnNext').style.display='none';
+
+  const grid=document.getElementById('ansGrid');
+  grid.innerHTML='';
+  ['A','B','C','D'].forEach((letter,i)=>{
+    const btn=document.createElement('button');
+    btn.className='ans';
+    btn.innerHTML=`<span class="ans-l">${letter}</span><span>${q.a[shuffledIdxs[i]]}</span>`;
+    btn.addEventListener('touchstart',e=>{e.preventDefault();pick(i);},{passive:false});
+    btn.addEventListener('click',()=>pick(i));
+    grid.appendChild(btn);
+  });
+  startTimer();
+}
+
+// ══════════════════════════════════════════
+// PICK ANSWER
+// ══════════════════════════════════════════
+function pick(i){
+  if(answered)return;
+  answered=true; stopTimer();
+  const isOk=i===newOkPos;
+  const basePts=diff===1?10:diff===2?15:20;
+  const b=isOk?Math.round(tVal*4):0;
+  if(isOk){score+=basePts+b;okCount++;bonusTotal+=b;}else koCount++;
+
+  document.querySelectorAll('.ans').forEach((btn,idx)=>{
+    btn.disabled=true;
+    if(idx===i&&isOk)btn.classList.add('ok');
+    else if(idx===i)btn.classList.add('ko');
+    else if(idx===newOkPos)btn.classList.add('reveal');
+  });
+  document.getElementById('qPts').textContent=`${score} pts`;
+  showExpl(isOk, false);
+}
+
+function showExpl(isOk, timesUp){
+  const q=pool[cur];
+  const box=document.getElementById('expl');
+  box.style.display='block';
+  const label=timesUp?'⏱️ Temps écoulé !':isOk?'✅ Correct !':'❌ Raté !';
+  box.innerHTML=`<strong>${label}</strong> — ${q.expl}`;
+  const nxt=document.getElementById('btnNext');
+  nxt.style.display='block';
+  nxt.textContent=cur<TOTAL-1?'QUESTION SUIVANTE →':'🏁 VOIR MON SCORE';
+}
+
+// ══════════════════════════════════════════
+// NEXT / END
+// ══════════════════════════════════════════
+function nextQ(){cur++;cur>=TOTAL?endQuiz():renderQ()}
+
+async function endQuiz(){
+  stopTimer();
+  // Afficher résultats
+  const pct=okCount/TOTAL;
+  document.getElementById('rEmoji').textContent=pct>=.9?'🏆':pct>=.7?'⭐':pct>=.5?'👍':'😅';
+  document.getElementById('rTitle').textContent=pct>=.9?'Excellent !':pct>=.7?'Bien joué !':pct>=.5?'Pas mal !':'Continue à apprendre !';
+  document.getElementById('rSub').textContent=`${player} · ${DIFF_LABELS[diff]}`;
+  document.getElementById('rScore').textContent=score;
+  document.getElementById('rOk').textContent=okCount;
+  document.getElementById('rKo').textContent=koCount;
+  document.getElementById('rBonus').textContent=`+${bonusTotal}`;
+  show('s-result');
+
+  // Sauvegarder dans Supabase
+  try{
+    await insertScore(player, score, okCount, diff);
+    toast('✅ Score enregistré dans le classement !');
+  }catch(e){
+    console.error('Supabase insert error:',e);
+    toast('⚠️ Erreur de sauvegarde du score');
+  }
+}
+
+// ══════════════════════════════════════════
+// LEADERBOARD
+// ══════════════════════════════════════════
+async function loadLb(){
+  document.getElementById('podium').innerHTML='';
+  document.getElementById('lbList').innerHTML='<div class="empty"><span class="spinner"></span>Chargement…</div>';
+  try{
+    const data=await fetchScores();
+    if(!data||!data.length){
+      document.getElementById('lbList').innerHTML='<div class="empty">Aucun score encore.<br>Sois le premier ! 🚀</div>';
+      return;
+    }
+    // Meilleur score par joueur
+    const best={};
+    data.forEach(e=>{if(!best[e.name]||e.score>best[e.name].score)best[e.name]=e;});
+    const sorted=Object.values(best).sort((a,b)=>b.score-a.score);
+    renderLb(sorted);
+  }catch(e){
+    console.error('Supabase fetch error:',e);
+    document.getElementById('lbList').innerHTML='<div class="empty">❌ Erreur de chargement.<br>Vérifie ta connexion.</div>';
+  }
+}
+
+function renderLb(sorted){
+  const medals=['🥇','🥈','🥉'];
+  const top3=sorted.slice(0,3);
+  const order=top3.length>=3?[top3[1],top3[0],top3[2]]:top3.length===2?[top3[1],top3[0]]:top3;
+  const ranks=top3.length>=3?[2,1,3]:top3.length===2?[2,1]:[1];
+
+  const pod=document.getElementById('podium');
+  pod.innerHTML='';
+  order.forEach((e,i)=>{
+    const r=ranks[i];
+    const d=document.createElement('div');
+    d.className=`pod p${r}`;
+    d.innerHTML=`<div class="pod-crown">${medals[r-1]}</div>
+      <div class="pod-av">${e.name[0].toUpperCase()}</div>
+      <div class="pod-name">${e.name}</div>
+      <div class="pod-pts">${e.score} pts</div>
+      <div class="pod-meta">${e.ok??'-'}/${TOTAL}✓ · ${DIFF_SHORT[e.diff]??''}</div>`;
+    pod.appendChild(d);
+  });
+
+  const list=document.getElementById('lbList');
+  list.innerHTML='';
+  sorted.forEach((e,i)=>{
+    const isMe=e.name===player;
+    const row=document.createElement('div');
+    row.className='lb-row'+(isMe?' me':'');
+    row.innerHTML=`<div class="lb-rank">${i+1}</div>
+      <div class="lb-av">${e.name[0].toUpperCase()}</div>
+      <div class="lb-info">
+        <div class="lb-name">${e.name}${isMe?' 👈':''}</div>
+        <div class="lb-sub">${e.ok??'-'}/${TOTAL} bonnes · ${DIFF_LABELS[e.diff]??''} · ${e.date??''}</div>
+      </div>
+      <div class="lb-pts">${e.score} pts</div>`;
+    list.appendChild(row);
+  });
+}
+
+// Init
+loadLb();
+</script>
+</body>
+</html>
